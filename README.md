@@ -4,7 +4,7 @@
 
 **NOTE**: I know there is no code at all, it will get pushed when we're on beta3, which should be reached around 24/Jan/2015. This documentation is also incomplete, should be ready at the same date. Thanks for understanding.
 
-Django application to import data regardless of data/field/thirdparty types or headers
+Django application to import data regardless of data/field/thirdparty types or headers. This importer is focused on functionality, completeness, data cleanliness and reporting, not on speed itself.
 
 # Features
 - Support CSV, XLS and XLSX
@@ -12,10 +12,23 @@ Django application to import data regardless of data/field/thirdparty types or h
 - Non estandard fields are supported trough functions
 - Support required unbound fields (fields required in your model but absent in your import file) 
 - Support callbacks to apply after a succesful import
-- Support for optional data in the import file (columns that repeat)
+- Support for optional data in the import file (columns that repeat themselves)
+- Support Foreignkeys
 - ***Report system with statistics and records on each import***
 - ***Failed entries are saved in a separate file and accesible through the report***
 - ***Third party access to the imports with email reports.***
+- Support django CMS
+- Available as management command or admin action
+
+# Future improvements
+
+- Speed (really difficult, this one)
+- Support ManyToMany fields
+- Remove lambdas to remove eval() from the code and replace it with functions
+- Optional logging (forced right now)
+- Optional profiling (so you can know how well did this do in your box)
+- pip support
+- Figure out a way of doing bulk_inserts with ID's
 
 # Supported on
 - Django 1.5/1.6/1.7
