@@ -25,7 +25,7 @@ from models import Report
 # 2h15m / 350MB RAM for every 5k records.
 # ~2.5 days / 7GB RAM for every 100k records.
 
-# Create the logging instance (spits out to src/EllasKitchen/django.log)
+# Create the logging instance
 logger = logging.getLogger(__name__)
 
 ALLOWED_EXTENSIONS = ['csv', 'xls', 'xlsx']
