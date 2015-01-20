@@ -1,8 +1,6 @@
 # django-genericimports
 
-**STATUS**: beta
-
-**NOTE**: I know there is no code at all, it will get pushed when we're on beta3, which should be reached around 24/Jan/2015. This documentation is also incomplete, should be ready at the same date. Thanks for understanding.
+**STATUS**: beta2
 
 Django application to import data regardless of data/field/thirdparty types or headers. This importer is focused on functionality, completeness, data cleanliness and reporting, not on speed itself.
 
