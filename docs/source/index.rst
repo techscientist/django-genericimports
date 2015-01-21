@@ -6,6 +6,10 @@
 django-genericimports's documentation!
 ======================================
 
+django-genericimports is a django application to import CSV/XLS files into
+your database without having to care about headers or data types, it provides
+support for foreignkeys, callbacks, thirdparty fields, etc.
+
 Contents:
 
 .. toctree::
@@ -15,6 +19,7 @@ Contents:
    featuresandrequirements
    installing
    configuration
+   reports
 
 License
 =======
