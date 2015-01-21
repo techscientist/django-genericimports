@@ -12,8 +12,14 @@ Contents:
    :maxdepth: 2
 
    introduction
+   featuresandrequirements
    installing
    configuration
+
+License
+=======
+
+This application is licensed in BSD 2-Clause license. This application was developed while at work on Havas Worldwide London, so part of the kudos goes to them as well.
 
 .. Indices and tables
 .. ==================
