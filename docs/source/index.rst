@@ -19,6 +19,7 @@ Contents:
    featuresandrequirements
    installing
    configuration
+   filtersandcallbacks
    reports
 
 License
