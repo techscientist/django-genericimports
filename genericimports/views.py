@@ -18,8 +18,8 @@ from models import Report
 logger = logging.getLogger(__name__)
 
 # DAMN YOU DJANGO RQ
-def trigger_queue(obj_id, file):
-    Importer(obj_id, file)
+def trigger_queue(obj_id, file, querystrings):
+    Importer(obj_id, file, querystrings)
 
 
 @staff_member_required
@@ -37,7 +37,6 @@ def import_file(request):
                 report_file = os.path.join(settings.MEDIA_ROOT, report_obj.original_file.name)
                 queue = django_rq.get_queue('importer')
                 queue.enqueue(trigger_queue, args=(report_obj.id, report_file))
-                #queue.enqueue(parser.Importer(report_obj.id, report_file))  # request.FILES['uploadfile']))
                 return render_to_response('thanks.html')
             except Exception as e:
                 logger.error("CRITICAL ERROR: THE TASK COULDN'T BE EXECUTED.")

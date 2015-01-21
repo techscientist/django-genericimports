@@ -37,13 +37,15 @@ ALLOWED_EXTENSIONS = ['csv', 'xls', 'xlsx']
 
 class Importer():
 
-    def __init__(self, report_id, uploaded_file):
+    def __init__(self, report_id, uploaded_file, querystring):
 
         """
         The init method should load the file from the upload form in the
         importhub, detect which filetype is and send it to the right task
         in django-rq to be processed.
         """
+        # Save the querystring
+        self.querystring = querystring
         # Set up the counters
         self.success = 0
         self.failed = 0
@@ -381,6 +383,9 @@ class Importer():
             self.report.failed_records.save(self.failed_file_name, failed_entries, save=True)
             self.report.status = 0
             self.report.save()
+
+            # Run the callback
+            settings.IMPORTER[0]['settings']['callback'](self.querystring)
         except:
             self.report.status = 3
 
