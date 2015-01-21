@@ -2,13 +2,15 @@
 
 **STATUS**: beta2
 
+**NOTE**: This application is still not ready for production. Use it at your own risk.
+
 Django application to import data regardless of data/field/thirdparty types or headers. This importer is focused on functionality, completeness, data cleanliness and reporting, not on speed itself.
 
 # Features
 - Support CSV, XLS and XLSX
 - Agnostic to data types or headers
 - Non estandard fields are supported trough functions
-- Support required unbound fields (fields required in your model but absent in your import file) 
+- Support required unbound fields (fields required in your model but absent in your import file)
 - Support callbacks to apply after a succesful import
 - Support for optional data in the import file (columns that repeat themselves)
 - Support Foreignkeys

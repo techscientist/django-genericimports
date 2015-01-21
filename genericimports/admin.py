@@ -10,7 +10,7 @@ class ReportAdmin(admin.ModelAdmin):
 
     """
     This shows the administration panel tof the reports. We should show all
-    the data to teh user, but allow them to only modify the label.
+    the data to the user, but allow them to only modify the label.
     """
     search_fields = ('label',)
     readonly_fields = ('status', 'success', 'failed', 'existing', 'incomplete',
