@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 from distutils.core import setup
 from setuptools import find_packages
 
@@ -14,7 +15,12 @@ setup(
     description='Import any CSV or XLS file regardless of data types, headers or foreignkeys.',
     long_description=open('README').read(),
     zip_safe=False,
-
+    install_requires=[
+        "django >= 1.5.12",
+        "openpyxl >= 2.1.4",
+        "python-dateutil >= 1.5",
+        "django-rq >= 0.7.0",
+    ],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',

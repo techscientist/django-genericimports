@@ -1,23 +1,27 @@
 # -*- coding: utf-8 -*-
 
-import os
-import sys
+# Python imports
 import csv
+from datetime import datetime
+from distutils.util import strtobool
 import logging
+import os
 import random
 import string
-from datetime import datetime
+import sys
 import time
-from distutils.util import strtobool
 
+# Django imports
 from django.db.models import get_model
 from django.conf import settings
 from django.core.mail import send_mail
 from django.core.files import File
 
+# Thirparty
 from openpyxl import load_workbook
 from dateutil.parser import parse as date_parser
 
+# App modules
 from exceptions import RowDataMalformed, FallOutOfRow, RecordAlreadyExists
 from models import Report
 
