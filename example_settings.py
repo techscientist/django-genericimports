@@ -33,6 +33,8 @@ RQ_QUEUES = {
 # won't need this level of complexity.
 # The explanations are inlined
 
+# Example row:
+# firstname, lastname, email, street, street2, county, country, phone, whatever1, whatever2, whatever3, whatever4, beer1_name, beer1_date, beer2_name, beer2_date
 IMPORTER = [
     {
         # Settings for the importer
@@ -45,7 +47,7 @@ IMPORTER = [
         },
         # This is the main mapping, the order or the items matter, since it
         # matches the column order in the CSV rows.
-        'mapping':[
+        'mapping': [
             {
                 'model': 'auth.User',
                 # Can we skip this data if it fails?
@@ -58,8 +60,8 @@ IMPORTER = [
                 ],
                 # We have fields that are not in the CSV but are required by the model
                 'unbound': {
-                    'username':"(lambda x: ''.join(random.choice(string.ascii_lowercase) for _ in range(x)))(16)",
-                    'password':"(lambda x: ''.join(random.choice(string.ascii_lowercase) for _ in range(x)))(16)", }
+                    'username': "(lambda x: ''.join(random.choice(string.ascii_lowercase) for _ in range(x)))(16)",
+                    'password': "(lambda x: ''.join(random.choice(string.ascii_lowercase) for _ in range(x)))(16)", }
             },
             {
                 'model': 'accounts.UserProfile',
@@ -76,10 +78,6 @@ IMPORTER = [
                     'field_3',
                     'field_4',
                     'field_5',
-                    'field_6',
-                    'field_7',
-                    'field_8',
-                    'field_9',
                 ]
             },
             {
@@ -91,16 +89,13 @@ IMPORTER = [
                 # Now, the data for this model is located after the first 9 columns
                 # so what we do is create 9 empty items, and then continue with
                 # our fields
-                'fields': [''] * 9 + [  # Note the multiplication, we skip 9 columns
-                    'field_10',
-                    'field_11',
-                    'field_12',
+                'fields': [''] * 5 + [  # Note the multiplication, we skip 9 columns
+                    'field_6',
+                    'field_7',
+                    'field_8',
                     # Imagine a thirdparty field here, django doesn't know how
                     # to handle it, but we know, so we call an unbound function
                     {'filter': my_function, 'name': "thirdparty_field"},
-                    'field_14',
-                    'field_15',
-                    'field_16',
                 ]
             },
             # Now, for some reason we can have data for the same model that
@@ -108,56 +103,21 @@ IMPORTER = [
             # for example)
             {
                 'model': 'accounts.UserBeers',
-                'foreignkey': [0, 'user'], # This links this object with the previous one
+                'foreignkey': [1, 'userprofile'],  # This links this object with the previous one
                 'optional': True,
-                'fields': [''] * 15 + [  # skip 15 columns
-                    'field_17',
-                    'field_18',
+                'fields': [''] * 9 + [
+                    'field_9',
+                    'field_10',
                 ]
             },
+            # Next record for beers
             {
-                'model': 'accounts.UserChildRecord',
-                'foreignkey': [0, 'user'], # This links this object with the previous one
+                'model': 'accounts.UserBeers',
+                'foreignkey': [1, 'userprofile'],  # This links this object with the previous one
                 'optional': True,
-                'fields': [''] * 17 + [ # Skip 17 columns
-                    'name',
-                    'date_of_birth',
-                ]
-            },
-            {
-                'model': 'accounts.UserChildRecord',
-                'foreignkey': [0, 'user'], # This links this object with the previous one
-                'optional': True,
-                'fields': [''] * 19 + [
-                    'name',
-                    'date_of_birth',
-                ]
-            },
-            {
-                'model': 'accounts.UserChildRecord',
-                'foreignkey': [0, 'user'], # This links this object with the previous one
-                'optional': True,
-                'fields': [''] * 21 + [
-                    'name',
-                    'date_of_birth'
-                ]
-            },
-            {
-                'model': 'accounts.UserChildRecord',
-                'foreignkey': [0, 'user'], # This links this object with the previous one
-                'optional': True,
-                'fields': [''] * 23 + [
-                    'name',
-                    'date_of_birth'
-                ]
-            },
-            {
-                'model': 'accounts.UserChildRecord',
-                'foreignkey': [0, 'user'], # This links this object with the previous one
-                'optional': True,
-                'fields': [''] * 25 + [
-                    'name',
-                    'date_of_birth'
+                'fields': [''] * 11 + [
+                    'field_11',
+                    'field_12',
                 ]
             },
         ],
