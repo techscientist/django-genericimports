@@ -2,8 +2,9 @@
 
 from django.conf.urls import patterns, url
 
+import views
 
-urlpatterns = patterns("apps.CustomApphooks.ImportHub.views",
-    url(r"^", "import_file"),
-    url(r"reports/", "list_reports"),
+urlpatterns = patterns('',
+    url(r"^", views.import_file),
+    url(r"reports/", views.list_reports),
 )

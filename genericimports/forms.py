@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.forms import ModelForm
-from apps.CustomApphooks.ImportHub.models import Report
+from models import Report
 
 
 class ReportForm(ModelForm):

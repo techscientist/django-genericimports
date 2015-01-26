@@ -14,10 +14,9 @@ from parser import Importer
 from forms import ReportForm
 from models import Report
 
-# Create the logging instance (spits out to src/EllasKitchen/django.log)
 logger = logging.getLogger(__name__)
 
-# DAMN YOU DJANGO RQ
+
 def trigger_queue(obj_id, file, querystrings):
     Importer(obj_id, file, querystrings)
 
@@ -35,8 +34,10 @@ def import_file(request):
                 report = form.save()
                 report_obj = Report.objects.get(id=report.pk)
                 report_file = os.path.join(settings.MEDIA_ROOT, report_obj.original_file.name)
+                querystrings = request.META['QUERY_STRING']
+                print querystrings
                 queue = django_rq.get_queue('importer')
-                queue.enqueue(trigger_queue, args=(report_obj.id, report_file))
+                queue.enqueue(trigger_queue, args=(report_obj.id, report_file, querystrings))
                 return render_to_response('thanks.html')
             except Exception as e:
                 logger.error("CRITICAL ERROR: THE TASK COULDN'T BE EXECUTED.")
@@ -52,4 +53,4 @@ def list_reports(request):
     """
     List all the reports for the performed imports.
     """
-    print "not yet"
+    pass
