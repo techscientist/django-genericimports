@@ -10,7 +10,7 @@ in the APPHOOKS settings dictionary, it will become available as an apphook.
 
 
 class ImportHubHook(CMSApp):
-    name = "User Import Hub"
-    urls = ["apps.CustomApphooks.ImportHub.urls"]
+    name = "Generic Imports"
+    urls = ["genericimports.urls"]
 
 apphook_pool.register(ImportHubHook)
