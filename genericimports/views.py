@@ -10,9 +10,9 @@ from django.conf import settings
 
 import django_rq
 
-from parser import Importer
-from forms import ReportForm
-from models import Report
+from .parser import Importer
+from .forms import ReportForm
+from .models import Report
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +35,7 @@ def import_file(request):
                 report_obj = Report.objects.get(id=report.pk)
                 report_file = os.path.join(settings.MEDIA_ROOT, report_obj.original_file.name)
                 querystrings = request.META['QUERY_STRING']
-                print querystrings
+                print(querystrings)
                 queue = django_rq.get_queue('importer')
                 queue.enqueue(trigger_queue, args=(report_obj.id, report_file, querystrings))
                 return render_to_response('thanks.html')

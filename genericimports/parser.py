@@ -22,8 +22,8 @@ from openpyxl import load_workbook
 from dateutil.parser import parse as date_parser
 
 # App modules
-from exceptions import RowDataMalformed, FallOutOfRow, RecordAlreadyExists
-from models import Report
+from .exceptions import RowDataMalformed, FallOutOfRow, RecordAlreadyExists
+from .models import Report
 
 # Speed/memory measurement as of 2015-01-16 on the development computer (sqlite):
 # 2h15m / 350MB RAM for every 5k records.

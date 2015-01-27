@@ -133,3 +133,16 @@ LOGGING = {
         },
     }
 }
+
+############
+# RQ
+###############
+RQ_QUEUES = {
+    'importer': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 0,
+        'PASSWORD': '',
+        'DEFAULT_TIMEOUT': 360,
+    },
+}

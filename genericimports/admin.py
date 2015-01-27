@@ -3,7 +3,7 @@
 from django.contrib import admin
 from django.contrib.admin import DateFieldListFilter
 
-from models import Report
+from .models import Report
 
 
 class ReportAdmin(admin.ModelAdmin):
