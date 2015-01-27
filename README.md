@@ -2,11 +2,13 @@
 
 **STATUS**: beta5
 
-**NOTE**: This application is still not ready for production. Use it at your own risk.
-
 Django application to import data regardless of data/field/thirdparty types or headers. This importer is focused on functionality, completeness, data cleanliness and reporting, not on speed itself.
 
-Check the documentation at: http://django-genericimports.readthedocs.org/en/latest/
+Check the documentation at: http://django-genericimports.rtfd.org/
+
+# How to install
+
+`$ pip install django-genericimports`
 
 # License
 
