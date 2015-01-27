@@ -14,7 +14,6 @@ from parser import Importer
 from forms import ReportForm
 from models import Report
 
-# Create the logging instance (spits out to src/EllasKitchen/django.log)
 logger = logging.getLogger(__name__)
 
 

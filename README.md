@@ -1,6 +1,6 @@
 # django-genericimports
 
-**STATUS**: beta4
+**STATUS**: beta5
 
 **NOTE**: This application is still not ready for production. Use it at your own risk.
 
