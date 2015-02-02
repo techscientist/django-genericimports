@@ -1,6 +1,6 @@
 # django-genericimports
 
-**STATUS**: beta5
+**STATUS**: beta6
 
 Django application to import data regardless of data/field/thirdparty types or headers. This importer is focused on functionality, completeness, data cleanliness and reporting, not on speed itself.
 

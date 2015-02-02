@@ -25,7 +25,6 @@ from dateutil.parser import parse as date_parser
 
 # App modules
 from .exceptions import RowDataMalformed, FallOutOfRow, RecordAlreadyExists
-from .models import Report
 
 # Speed/memory measurement as of 2015-01-16 on the development computer (sqlite):
 # 2h15m / 350MB RAM for every 5k records.
@@ -39,7 +38,7 @@ ALLOWED_EXTENSIONS = ['csv', 'xls', 'xlsx']
 
 class Importer():
 
-    def __init__(self, report_id, uploaded_file='', querystring=''):
+    def __init__(self, querystrings, report):
 
         """Initialize the importer class
 
@@ -65,16 +64,17 @@ class Importer():
             Any other exception: Problems while trying to create the failed rows
                                  file.
         """
-        # Save the querystring
-        self.querystring = querystring
+        # Process the data
+        self.querystring = querystrings
+        # Get the report
+        self.report = report
+        self.report.status = 1
+        uploaded_file = self.report.original_file.path
         # Set up the counters
         self.success = 0
         self.failed = 0
         self.existing = 0
         self.total = 0
-        # Get the report
-        self.report = Report.objects.get(id=report_id)
-        self.report.status = 1
         # Set the files
         self.failed_file_name = "%s_%s_%s.csv" % (time.strftime("%Y%m%d"), time.strftime("%H%M"), 'failed_imports')
         self.fail_file = settings.MEDIA_ROOT + "/imports/" + self.failed_file_name
@@ -320,7 +320,7 @@ class Importer():
                 except Exception as e:
                     logger.error("Object is invalid!: %s" % e)
                     if entry['optional']:
-                        #fqall out of entryu continue on thwe next
+                        # fqall out of entryu continue on thwe next
                         raise FallOutOfRow("Object is invalid, but optional. Skipping to the next.")
                     else:
                         raise RowDataMalformed("Object has malformed data.")
@@ -401,7 +401,7 @@ class Importer():
             self.report.success = stats[0]
             self.report.failed = stats[1]
             self.report.existing = stats[2]
-            self.report.label = datetime.now()
+            self.report.label = str(datetime.now())
             failed_entries = File(open(self.fail_file, 'r'))
             self.report.failed_records.save(self.failed_file_name, failed_entries, save=True)
             self.report.status = 0
@@ -420,7 +420,7 @@ class Importer():
 
         # Run the callback. Pass the querystring from the init
         function_string = settings.IMPORTER[0]['settings']['callback']
-        mod_name, func_name = function_string.rsplit('.',1)
+        mod_name, func_name = function_string.rsplit('.', 1)
         mod = importlib.import_module(mod_name)
         func = getattr(mod, func_name)
         # Make it happen

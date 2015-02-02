@@ -5,7 +5,7 @@ from setuptools import find_packages
 
 setup(
     name='django-genericimports',
-    version='0.1b5',
+    version='0.1b6',
     author=u'Oscar Carballal Prego',
     author_email='oscar.carballal@gmail.com',
     packages=find_packages(),

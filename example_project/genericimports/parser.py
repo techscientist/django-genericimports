@@ -4,6 +4,7 @@
 import csv
 from datetime import datetime
 from distutils.util import strtobool
+import importlib
 import logging
 import os
 import random
@@ -13,6 +14,7 @@ import time
 
 # Django imports
 from django.db.models import get_model
+from django.db import transaction
 from django.conf import settings
 from django.core.mail import send_mail
 from django.core.files import File
@@ -23,7 +25,6 @@ from dateutil.parser import parse as date_parser
 
 # App modules
 from .exceptions import RowDataMalformed, FallOutOfRow, RecordAlreadyExists
-from .models import Report
 
 # Speed/memory measurement as of 2015-01-16 on the development computer (sqlite):
 # 2h15m / 350MB RAM for every 5k records.
@@ -37,23 +38,43 @@ ALLOWED_EXTENSIONS = ['csv', 'xls', 'xlsx']
 
 class Importer():
 
-    def __init__(self, report_id, uploaded_file, querystring):
+    def __init__(self, querystrings, report):
 
+        """Initialize the importer class
+
+        Get the report ID, the uploaded file and the querystrings (if any) and
+        set up all the required variables and counters for the actual parser.
+
+        Args:
+            report_id: Integer representing the ID of the report where the
+                       final data is going to be saved.
+            uploaded_file: (default: '') Full path to the uploaded file.
+            querystring: (default: '') A string containing all the querystrings
+                        that were passed to the form. This is normally used for
+                        the callback postprocessing.
+
+        Returns:
+            If the function is successful it will call the required processor
+            to read the imported file and we create a secondary CSV file where
+            we store the failed rows. In case this function fails we assume
+            that we can't continue and we call sys.exit()
+
+        Raises:
+            IOError: Couldn't read the file
+            Any other exception: Problems while trying to create the failed rows
+                                 file.
         """
-        The init method should load the file from the upload form in the
-        importhub, detect which filetype is and send it to the right task
-        in django-rq to be processed.
-        """
-        # Save the querystring
-        self.querystring = querystring
+        # Process the data
+        self.querystring = querystrings
+        # Get the report
+        self.report = report
+        self.report.status = 1
+        uploaded_file = self.report.original_file.path
         # Set up the counters
         self.success = 0
         self.failed = 0
         self.existing = 0
         self.total = 0
-        # Get the report
-        self.report = Report.objects.get(id=report_id)
-        self.report.status = 1
         # Set the files
         self.failed_file_name = "%s_%s_%s.csv" % (time.strftime("%Y%m%d"), time.strftime("%H%M"), 'failed_imports')
         self.fail_file = settings.MEDIA_ROOT + "/imports/" + self.failed_file_name
@@ -106,6 +127,12 @@ class Importer():
         This function gets called when there is a critical error on the row
         values and we should undo all the work that we did instead of trying
         to push it forward.
+
+        Args:
+            rowdata: The whole row as returned from the processor
+
+        Raises:
+            Any exception: Couldn't delete the data from the database correctly.
         """
         logger.warning("WARNING 01: A row failed, proceeding to deletion from DB.")
         # logger.warning(e)
@@ -136,34 +163,30 @@ class Importer():
                 logger.error("Couldn't delete the object %s id: %s" % (model_name, i))
         # del self.ID_LIST[:]
 
+    @transaction.atomic
     def _process_row(self, rowdata):
 
-        """
-        Process the row data according to the dictionary parameters. Full
-        explanation follows:
+        """Process the row data column by column_value
 
-        First we iterate over the entries (dictionary) in the settings, that's
-        the mapping of fields and models. We get the model name and split
-        it so we can instantiate it with get_model().
+        This function is the core of the import mechanism. It will grab one row
+        at a time and process it in a column group basis, defined by your
+        mapping in the settings file. Inline commenting gives a detailed
+        explanation.
 
-        After that we reset the position of the column counter (remember that
-        we are operating with a single row here) and establish the row length
-        __based on the mapping list__ not on the content. The reason for this
-        is to avoid unnecesary iterations or fall outside of the list if the
-        mapping is incorrect.
+        Args:
+            rowdata: The entire row data as returned by the file reader
 
-        Now for each column in the row, we iterate over the field mapping list
-        determining first if it's an empty string or not. An empty string means
-        that the models shouldn't store anything from that column, so we
-        convert that into a True/False boolean. If the field is True, we populated
-        the field in the model instance with the data that the column of the row
-        gives us. This process is repeated over and over until all the model is
-        filled with the data that we want.
+        Return:
+            Doesn't return actual data, but the objects saved in the database.
 
-        After all is populated we look for a foreignkey definition on the
-        mapping that will tell us if the model is foreignkeyed to something,
-        in special it will tell us the position of the related model in the
-        mapping.
+        Raises:
+            FallOutOfRow: When a row is shorter than our columnar mapping
+            RowDataMalformed: When a part of the required data in the row doesn't
+                              meet the especifications or the database rejects
+                              the data due to incompatibilities. Triggers delete
+            RecordAlreadyExists: When the data of one of the entries already
+                                 exists on the database. Trigger the delete.
+            Any other: The logger will return the django error.
         """
         self.ID_LIST = []
         try:
@@ -234,7 +257,7 @@ class Importer():
                     # Any other exception that is not IndexError means corrupted data
                     except:
                         current_column += 1
-                        raise RowDataMalformed("We have coprrupted data!")
+                        raise RowDataMalformed("We have corrupted data!")
 
                 # Wait! Is there any unbound fields??
                 if 'unbound' in entry:
@@ -297,7 +320,7 @@ class Importer():
                 except Exception as e:
                     logger.error("Object is invalid!: %s" % e)
                     if entry['optional']:
-                        #fqall out of entryu continue on thwe next
+                        # fqall out of entryu continue on thwe next
                         raise FallOutOfRow("Object is invalid, but optional. Skipping to the next.")
                     else:
                         raise RowDataMalformed("Object has malformed data.")
@@ -378,20 +401,27 @@ class Importer():
             self.report.success = stats[0]
             self.report.failed = stats[1]
             self.report.existing = stats[2]
-            self.report.label = datetime.now()
+            self.report.label = str(datetime.now())
             failed_entries = File(open(self.fail_file, 'r'))
             self.report.failed_records.save(self.failed_file_name, failed_entries, save=True)
             self.report.status = 0
             self.report.save()
-
-            # Run the callback
-            settings.IMPORTER[0]['settings']['callback'](self.querystring)
-        except:
-            self.report.status = 3
-
         # send_mail('[ImportHub] Your import has finished',
         #          'Your CSV import has finished successfully. Here is the report:\n\n'
         #          'Took: %s\nFailed: %s\nAdded: %s\nExisting: %s\n.' % (
         #            self.end,self.failed,self.success,self.existing),
         #            'haha@example.com', ['oscar.carballal@havasww.com'],
         #            fail_silently=False)
+
+        except:
+            self.report.status = 3
+
+    def _import_callback(self):
+
+        # Run the callback. Pass the querystring from the init
+        function_string = settings.IMPORTER[0]['settings']['callback']
+        mod_name, func_name = function_string.rsplit('.', 1)
+        mod = importlib.import_module(mod_name)
+        func = getattr(mod, func_name)
+        # Make it happen
+        func(objects, self.querystring)
